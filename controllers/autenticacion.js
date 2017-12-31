@@ -44,3 +44,13 @@ exports.generar = function(req, res) {
     }
   });
 }
+
+exports.validar = function(token) {
+  return jwt.verify(token, config.secret, function(error, decoded) {
+    if (error) {
+      return null;
+    } else {
+      return decoded;
+    }
+  });
+}
