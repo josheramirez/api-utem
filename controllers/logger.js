@@ -3,15 +3,17 @@
 var request = require('request');
 var cheerio = require('cheerio');
 
-exports.dirdoc = function(rut, pass, callback) {
+var Responses = require('../responses/clientError')
+
+exports.dirdoc = function(params, res, callback) {
   var options = {
     url: 'https://dirdoc.utem.cl/valida.php',
     method: 'POST',
     jar: request.jar(),
     form: {
       'tipo': 0,
-      'rut': rut,
-      'password': pass
+      'rut': params.rut,
+      'password': params.pass
     }
   };
 
@@ -24,20 +26,20 @@ exports.dirdoc = function(rut, pass, callback) {
         case 'Bienvenido':
           callback(options.jar);
           break;
-        case 'El password ingresado no es válido. Intentelo nuevamente':
-          // El RUT ingresado no está registrado, o la contraseña no es válida
-          break;
         case 'No ha ingresado RUT o Password. Intentelo nuevamente.':
-          // Campos incompletos.
+          Responses.r400(1, res);
+          break;
+        case 'El password ingresado no es válido. Intentelo nuevamente':
+          Responses.r401(1, res);
           break;
         case 'Ud. no está autorizado para entrar a gestión.':
-          // Permisos insuficientes
+          Responses.r402(1, res);
           break;
         default:
-          // Ocurrió un error inesperado
+          Responses.r500(1, res);
       }
     } else {
-      // Ocurrió un error inesperado
+      Responses.r503(1, res);
     }
   });
 }

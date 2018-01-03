@@ -3,11 +3,10 @@
 var request = require('request');
 var cheerio = require('cheerio');
 
-var Logger = require('../controllers/logger')
+var Logger = require('../controllers/logger');
 
 exports.datos = function(decoded, res) {
-
-  Logger.dirdoc(decoded.rut, decoded.pass, function(jar) {
+  Logger.dirdoc(decoded, res, function(jar) {
     var options = {
       url: 'https://dirdoc.utem.cl/curricular',
       method: 'GET',
@@ -20,12 +19,14 @@ exports.datos = function(decoded, res) {
 
       $('table:nth-of-type(2) tr').slice(1).each(function(i, tr) {
         var carrera = {
-          id: $('table:nth-of-type(2) tr:nth-of-type(2) td a').attr('href').replace('/curricular/avance?', '').toId(),
+          // id: $('table:nth-of-type(2) tr:nth-of-type(2) td a').attr('href').replace('/curricular/avance?', '').toId(),
           codigo: parseInt($(this).find('td').eq(0).text()),
           nombre: $(this).find('td').eq(0).text().replace(/[0-9]/g, '').trim().toTitleCase(),
           estado: $(this).find('td').eq(1).text().trim(),
-          semestreIngreso: $(this).find('td').eq(2).text(),
-          semestreTermino: $(this).find('td').eq(3).text() || null
+          añoIngreso: parseInt($(this).find('td').eq(2).text().slice(0, 4)),
+          semestreIngreso: parseInt($(this).find('td').eq(2).text().slice(5, 6)),
+          añoTermino: parseInt($(this).find('td').eq(2).text().slice(0, 4)) || null,
+          semestreTermino: parseInt($(this).find('td').eq(2).text().slice(5, 6)) || null
         }
         carreras.push(carrera);
       });

@@ -8,7 +8,7 @@ var config = require('../config');
 var Logger = require('../controllers/logger')
 
 exports.generar = function(req, res) {
-  Logger.dirdoc(req.query.rut, req.query.pass, function(jar) {
+  Logger.dirdoc(req.query, res, function(jar) {
     const payload = {
       rut: req.query.rut,
       pass: req.query.pass,
@@ -24,12 +24,37 @@ exports.generar = function(req, res) {
   });
 }
 
-exports.validar = function(token) {
-  return jwt.verify(token, config.secret, function(error, decoded) {
-    if (error) {
-      return null;
-    } else {
-      return decoded;
-    }
-  });
+exports.decodificar = function(autenticacion) {
+  var token = autenticacion.replace('Bearer ', '');
+
+  if(token) {
+    jwt.verify(token, config.secreto, function(err, decoded) {
+      if (error) {
+        // Error: err
+        return null;
+      } else {
+        return decoded;
+      }
+    });
+  } else {
+    return null;
+    // No proporcionó una token
+  }
+
+}
+
+exports.validar = function(autenticacion) {
+  var token = autenticacion.replace('Bearer ', '');
+
+  if(token) {
+    jwt.verify(token, config.secreto, function(err, decoded) {
+      if (err) {
+        return false;
+      } else {
+        return true;
+      }
+    });
+  }
+  return false;
+
 }
