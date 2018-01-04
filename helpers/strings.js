@@ -6,6 +6,6 @@ String.prototype.toTitleCase = function() {
   });
 };
 
-String.prototype.toId = function() {
-  return this.replace(/[&\/\\#,+()$~%.='":*?<>{}]/g, '');
+String.prototype.toSentenceCase = function() {
+  return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
 }

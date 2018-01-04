@@ -3,7 +3,7 @@
 var request = require('request');
 var cheerio = require('cheerio');
 
-var Logger = require('../controllers/logger');
+var Logger = require('../middlewares/logger');
 
 exports.mostrar = function(decoded, req, res) {
   Logger.dirdoc(decoded, res, function(jar) {

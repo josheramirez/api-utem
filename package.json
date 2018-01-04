@@ -10,13 +10,15 @@
   "author": "Jorge Verdugo Chacón",
   "license": "MPL 2.0",
   "dependencies": {
-    "express": "4.15.2",
-    "mongoose": "5.0.0-rc0",
+    "async": "2.6.0",
+    "async-each": "1.0.1",
     "body-parser": "1.18.2",
-    "morgan": "1.9.0",
+    "cheerio": "1.0.0-rc.2",
+    "express": "4.15.2",
     "jsonwebtoken": "8.1.0",
-    "request": "2.81.0",
-    "cheerio": "1.0.0-rc.2"
+    "mongoose": "5.0.0-rc0",
+    "morgan": "1.9.0",
+    "request": "2.81.0"
   },
   "engines": {
     "node": "6.10.2"
