@@ -10,7 +10,7 @@ exports.mostrar = function(decoded, req, res) {
     var notas = [];
 
     var options = {
-      url: 'https://dirdoc.utem.cl/curricular/notas/' + req.params.asignaturaId, // asignatura.id
+      url: 'https://dirdoc.utem.cl/curricular/notas/' + req.params.asignaturaId,
       method: 'GET',
       jar: jar
     };

@@ -162,18 +162,17 @@ exports.mallaCurricular = function(decoded, req, res) {
           nivel: nivelI,
           asignaturas: asignaturas
         }
-        
+
         niveles.push(nivel);
 
-        var malla = {
+        res.status(200).json({
           nivelActual: actual,
           asignaturasTotal: total,
           asignaturasAprobadas: aprobadas,
           asignaturasReprobadas: reprobadas,
-          avanceMalla: aprobadas / total,
+          avanceMalla: (aprobadas / total).toFixed(2),
           asignaturas: niveles
-        }
-        res.status(200).json(malla);
+        });
       });
 
     });

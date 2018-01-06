@@ -5,7 +5,7 @@ var cheerio = require('cheerio');
 
 var Logger = require('../middlewares/logger');
 
-exports.mostrar = function(decoded, res) {
+exports.mostrar = function(decoded, req, res) {
   Logger.dirdoc(decoded, res, function(jar) {
     var asignaturas = [];
 
@@ -28,23 +28,7 @@ exports.mostrar = function(decoded, res) {
             seccion: parseInt($(this).find('td').eq(3).text()),
             estado: $(this).find('td').eq(4).text().toTitleCase() || null,
             notaFinal: parseFloat($(this).find('td').eq(5).text().replace(',', '.')),
-            // notas: []
           }
-
-          /*
-          request('https://dirdoc.utem.cl/curricular/notas/' + asignatura.id, function(error, response, html) {
-            var $ = cheerio.load(html);
-
-            if($('p').text() == "No hay ponderadores ingresados") {
-            } else {
-              $('table:nth-of-type(2) tr:nth-of-type(2):not(.titulo_fila) th').each(function() {
-                var nota = parseFloat($(this).text().replace(',', '.')) || null;
-                asignatura.notas.push(nota);
-              });
-            }
-
-          });
-          */
           asignaturas.push(asignatura);
         });
         res.status(200).json(asignaturas);

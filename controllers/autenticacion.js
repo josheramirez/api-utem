@@ -44,7 +44,7 @@ exports.decodificar = function(autenticacion) {
   */
   return {
     rut: 19649846,
-    pass: "Pollo123"
+    pass: "Pollo123" // No lo intentes, la voy a cambiar 🙄
   }
 }
 
