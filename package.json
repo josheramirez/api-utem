@@ -1,4 +1,4 @@
-{
+n{
   "name": "api-dirdoc-utem",
   "version": "0.1.0",
   "description": "API de DIRDOC de la Universidad Tecnológica Metropolitana de Chile",
@@ -23,6 +23,6 @@
     "request": "2.81.0"
   },
   "engines": {
-    "node": "6.10.2"
+    "node": "8.9.4"
   }
 }
