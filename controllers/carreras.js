@@ -2,7 +2,6 @@
 
 var request = require('request');
 var cheerio = require('cheerio');
-var async = require("async");
 
 
 var Logger = require('../middlewares/logger');
@@ -56,9 +55,9 @@ exports.mostrar = function(decoded, req, res) {
             nombre: tr.find('td').eq(0).text().replace(/[0-9]/g, '').trim().toTitleCase(),
             plan: parseInt(tr.find('td').eq(1).text()),
             estado: tr.find('td').eq(2).text().trim().toSentenceCase(),
-            anoIngreso: tr.find('td').eq(3).text().slice(0, 4),
+            añoIngreso: tr.find('td').eq(3).text().slice(0, 4),
             semestreIngreso: tr.find('td').eq(3).text().slice(5, 6),
-            anoTermino: tr.find('td').eq(4).text().slice(0, 4) || null,
+            añoTermino: tr.find('td').eq(4).text().slice(0, 4) || null,
             semestreTermino: tr.find('td').eq(4).text().slice(5, 6) || null,
             mallaCurricular: "/estudiantes/" + req.params.rut + "/carreras/" + codigo + "/malla"
           }
@@ -107,7 +106,7 @@ exports.mallaCurricular = function(decoded, req, res) {
         var $ = cheerio.load(html);
         var asignaturas = [];
         var niveles = [];
-        var aprobada;
+        var aprobada, inscrita;
         var nivel, asignatura;
         var total = 0, aprobadas = 0, reprobadas = 0, obligatorias = 0, actual = -1;
 
@@ -135,14 +134,19 @@ exports.mallaCurricular = function(decoded, req, res) {
               aprobadas++;
               aprobada = true;
             } else {
-              if((actual == -1 || actual > nivelI) && nivelI != null) {
+              if ((actual == -1 || actual > nivelI) && nivelI != null) {
                 actual = nivelI;
               }
+
               if ($(this).find('td').eq(4).text().search('REPROBADO') != -1) {
                 reprobadas++;
                 aprobada = false;
+              } else if ($(this).find('td').eq(4).text().search('INSCRITA') != -1) {
+                aprobada = null;
+                inscrita = true;
               } else {
                 aprobada = null;
+                inscrita = false;
               }
             }
 
@@ -151,6 +155,7 @@ exports.mallaCurricular = function(decoded, req, res) {
               tipo: $(this).find('td').eq(2).text().toSentenceCase(),
               vecesCursada: parseInt($(this).find('td').eq(3).text()),
               aprobada: aprobada,
+              inscrita: inscrita,
               seccion: parseInt($(this).find('td').eq(5).text()) || null,
               nota: parseFloat($(this).find('td').eq(6).text().replace(',', '.'))
             }
@@ -176,12 +181,5 @@ exports.mallaCurricular = function(decoded, req, res) {
       });
 
     });
-    /*
-
-
-
-
-
-    */
   });
 }

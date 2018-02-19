@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 
 var CarreraSchema = new mongoose.Schema({
-  id: Number,
+  codigo: Number,
   nombre: String,
   plan: Number,
   asignaturas: [{

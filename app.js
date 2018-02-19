@@ -1,15 +1,14 @@
 'use strict';
 
-require('./helpers/strings');
+require('./helpers/string');
 
 var express = require('express');
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 var morgan = require('morgan');
-var config = require('./config');
 
 var app = express();
-//var db = mongoose.connect(config.db);
+var db = mongoose.connect(process.env.MONGODB_URI);
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());

@@ -40,34 +40,43 @@ exports.mostrar = function(decoded, req, res) {
           funcionAsyncB(trs[j], asignaturas, semestres);
 
           function funcionAsyncB(tr, asignaturas, semestres) {
+            var id = parseInt($(tr).find('td').eq(-1).find('a').attr('href').replace('/curricular/notas/', ''));
+
             var asignatura = {
-              id: parseInt($(tr).find('td').eq(-1).find('a').attr('href').replace('/curricular/notas/', '')),
+              id: id,
               codigo: $(tr).find('td').eq(0).text(),
               nombre: $(tr).find('td').eq(1).text().toTitleCase(),
               profesor: $(tr).find('td').eq(2).text().toTitleCase(),
               seccion: parseInt($(tr).find('td').eq(3).text()),
               estado: $(tr).find('td').eq(4).text().toTitleCase() || null,
               notaFinal: parseFloat($(tr).find('td').eq(5).text().replace(',', '.')),
+              notas: '/estudiantes/' + req.params.rut + '/carreras/' + req.params.codigoCarrera + '/asignaturas/' + id + '/notas',
+              bitacora: '/estudiantes/' + req.params.rut + '/carreras/' + req.params.codigoCarrera + '/asignaturas/' + id + '/bitacora',
+              atencionProfesor: '/estudiantes/' + req.params.rut + '/carreras/' + req.params.codigoCarrera + '/asignaturas/' + id + '/atencion'
             }
 
-            suma += asignatura.notaFinal;
-
-            asignaturas.push(asignatura);
-
-            j++;
-
-            if (j < trs.length) {
-              funcionAsyncB(trs[j], asignaturas, semestres);
+            if (req.params.asignaturaId == id) {
+              res.status(200).json(asignatura);
             } else {
-              var semestre = {
-                semestre: sem,
-                año: año,
-                promedio: (suma / j).toFixed(1),
-                totalAsignaturas: j,
-                asignaturas: asignaturas
-              }
+              suma += asignatura.notaFinal;
 
-              semestres.push(semestre);
+              asignaturas.push(asignatura);
+
+              j++;
+
+              if (j < trs.length) {
+                funcionAsyncB(trs[j], asignaturas, semestres);
+              } else {
+                var semestre = {
+                  semestre: sem,
+                  año: año,
+                  promedio: (suma / j).toFixed(1),
+                  totalAsignaturas: j,
+                  asignaturas: asignaturas
+                }
+
+                semestres.push(semestre);
+              }
             }
           }
 
@@ -75,7 +84,7 @@ exports.mostrar = function(decoded, req, res) {
 
           if (i < urls.length) {
             funcionAsyncA(urls[i], semestres);
-          } else {
+          } else if (!req.params.asignaturaId) {
             res.status(200).json(semestres);
           }
         }
@@ -83,4 +92,8 @@ exports.mostrar = function(decoded, req, res) {
       });
     }
   });
+}
+
+exports.guardar = function(decoded, req, res) {
+  
 }

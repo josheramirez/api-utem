@@ -2,71 +2,48 @@
 
 var request = require('request');
 var cheerio = require('cheerio');
-var jwt = require('jsonwebtoken');
-var config = require('../config');
+var jose = require('jose-simple');
+var { JWK } = require('node-jose');
 
 var Logger = require('../middlewares/logger')
 
 exports.generar = function(req, res) {
+
   Logger.dirdoc(req.query, res, function(jar) {
-    const payload = {
+    var credenciales = {
+      tipo: req.query.tipo,
       rut: req.query.rut,
       pass: req.query.pass,
+      exp: Date.getTime() + 1000 * 60 * 60,
     };
 
-    var token = jwt.sign(payload, config.secreto, {expiresIn: 86400});
+    var pemAJwk = pem => JWK.asKey(pem, 'pem');
 
-    res.status(200).json({
-      exito: true,
-      message: 'Token creada correctamente.',
-      token: token
+    Promise.all([pemAJwk(process.env.PUBLIC_KEY), pemAJwk(process.env.PRIVATE_KEY)]).then(function (llaves) {
+      var { encrypt, decrypt } = jose(llaves[1], llaves[0]);
     });
+
+    encrypt(credenciales).then((token) => {
+      return token;
+    });
+  });
+
+}
+
+exports.desencriptar = function(token) {
+  decrypt(token).then((desencriptado) => {
+    return desencriptado;
   });
 }
 
-exports.decodificar = function(autenticacion) {
-  /*
-  var token = autenticacion.replace('Bearer ', '');
-
-  if(token) {
-    jwt.verify(token, config.secreto, function(err, decoded) {
-      if (error) {
-        console.log(err);
-        return null;
-      } else {
-        return decoded;
-      }
-    });
-  } else {
-    return null;
-    // No proporcionó una token
-  }
-  */
-  return {
-    rut: 19649846,
-    pass: "Pollo123" // No lo intentes, la voy a cambiar 🙄
-  }
-}
-
 exports.validar = function(autenticacion) {
-  /*
   var token = autenticacion.replace('Bearer ', '');
 
   if(token) {
-    jwt.verify(token, config.secreto, function(err, decoded) {
-      if (err) {
-        console.log(err);
-        console.log("hola 2");
-        return false;
-      } else {
-        return true;
-      }
-    });
+    return true;
+    // Si hay token
   } else {
-    console.log("hola");
     return false;
+    // Si no hay token
   }
-  */
-  return true;
-
 }

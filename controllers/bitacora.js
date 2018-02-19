@@ -4,7 +4,7 @@ var request = require('request');
 var cheerio = require('cheerio');
 
 var Logger = require('../middlewares/logger');
-var Fecha = require('../helpers/date')
+var Fecha = require('../helpers/tiempo')
 
 exports.mostrar = function(decoded, req, res) {
   Logger.dirdoc(decoded, res, function(jar) {

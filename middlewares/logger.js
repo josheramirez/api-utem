@@ -11,7 +11,7 @@ exports.dirdoc = function(params, res, callback) {
     method: 'POST',
     jar: request.jar(),
     form: {
-      'tipo': 0,
+      'tipo': params.tipo,
       'rut': params.rut,
       'password': params.pass
     }

@@ -6,6 +6,7 @@ var router = express.Router({mergeParams: true});
 
 var Auth = require('../../controllers/autenticacion');
 var Estudiantes = require('../../controllers/estudiantes');
+var Excepcion = require('../../controllers/excepcion');
 
 router.get('/:rut', function(req, res) {
   if (req.headers.authorization) {
@@ -44,7 +45,21 @@ router.patch('/:rut', function(req, res) {
 });
 
 router.get('/:rut/excepcion', function(req, res) {
+  if (req.headers.authorization) {
+    if (Auth.validar(req.headers.authorization)) {
+      var decodificado = Auth.decodificar(req.headers.authorization);
 
+      if(decodificado.rut == req.params.rut) {
+        Excepcion.mostrar(decodificado, req, res);
+      } else {
+        console.log("No tiene acceso a la información de otra persona");
+      }
+    } else {
+      console.log("Token inválida");
+    }
+  } else {
+    console.log("No introduce token");
+  }
 });
 
 router.get('/:rut/horario', function(req, res) {

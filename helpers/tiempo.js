@@ -69,6 +69,9 @@ exports.horaAPeriodo = function(hora) {
     case '19:40':
       return 8;
       break;
+    case '21:20':
+      return 9;
+      break;
     default:
       return null;
   }
