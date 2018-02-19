@@ -24,7 +24,10 @@ exports.generar = function(req, res) {
     });
 
     encrypt(credenciales).then((token) => {
-      return token;
+      res.status(200).send({
+        mensaje: "El token se generó correctamente",
+        token: token
+      });
     });
   });
 
