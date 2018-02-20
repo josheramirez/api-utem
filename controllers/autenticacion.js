@@ -21,7 +21,7 @@ exports.generar = function(req, res) {
 
     var pemAJwk = pem => JWK.asKey(pem, 'pem');
 
-    Promise.all([pemAJwk(process.env.PUBLIC_KEY), pemAJwk(process.env.PRIVATE_KEY)]).then(function (llaves) {
+    Promise.all([pemAJwk(process.env.PUBLIC_KEY), pemAJwk(process.env.PRIVATE_KEY)]).then(function(llaves) {
       var { encrypt, decrypt } = jose(llaves[1], llaves[0]);
       encrypt(credenciales).then((token) => {
         res.status(200).send({
@@ -39,7 +39,7 @@ exports.desencriptar = function(autenticacion) {
     if(token) {
       var pemAJwk = pem => JWK.asKey(pem, 'pem');
 
-      Promise.all([pemAJwk(llaves.public), pemAJwk(llaves.private)]).then(function (llaves) {
+      Promise.all([pemAJwk(process.env.PUBLIC_KEY), pemAJwk(process.env.PRIVATE_KEY)]).then(function(llaves) {
         var { encrypt, decrypt } = jose(llaves[1], llaves[0]);
         decrypt(token).then((desencriptado) => {
           if(desencriptado.exp < d.getTime()) {
