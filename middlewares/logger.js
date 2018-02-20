@@ -3,42 +3,35 @@
 var request = require('request');
 var cheerio = require('cheerio');
 
-exports.dirdoc = function(params, res, callback) {
-  var options = {
-    url: 'https://dirdoc.utem.cl/valida.php',
-    method: 'POST',
-    jar: request.jar(),
-    form: {
-      'tipo': params.tipo,
-      'rut': params.rut,
-      'password': params.pass
-    }
-  };
-
-  request(options, function(error, response, html) {
-    if (!error && response.statusCode == 200) {
-      var $ = cheerio.load(html);
-      var mensaje = $('body b').text();
-
-      switch (mensaje) {
-        case 'Bienvenido':
-          callback(options.jar);
-          break;
-        // case 'No ha ingresado RUT o Password. Intentelo nuevamente.':
-        //   Responses.r400(1, res);
-        //   break;
-        // case 'El password ingresado no es válido. Intentelo nuevamente':
-        //   Responses.r401(1, res);
-        //   break;
-        // case 'Ud. no está autorizado para entrar a gestión.':
-        //   Responses.r402(1, res);
-        //   break;
-        // default:
-        //   Responses.r500(1, res);
+exports.dirdoc = function(params) {
+  return new Promise(function(resolve, reject) {
+    var opciones = {
+      url: 'https://dirdoc.utem.cl/valida.php',
+      method: 'POST',
+      jar: request.jar(),
+      form: {
+        'tipo': params.tipo || 0,
+        'rut': params.rut,
+        'password': params.pass
       }
     }
-    // } else {
-    //   Responses.r503(1, res);
-    // }
+
+    request(opciones, function(error, response, html) {
+      if (!error && response.statusCode == 200) {
+        var $ = cheerio.load(html);
+        var mensaje = $('body b').text();
+        if(mensaje == 'Bienvenido') {
+          resolve(opciones.jar);
+        } else {
+          // No se inició sesión porque: + mensaje
+          reject(Error("No se inició sesión porque: " + mensaje));
+        }
+      } else {
+        // No cargó la página
+        reject(Error("No cargó la pagina"));
+      }
+    });
   });
+
+
 }

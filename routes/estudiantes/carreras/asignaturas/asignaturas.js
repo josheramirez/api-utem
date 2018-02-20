@@ -10,94 +10,28 @@ var Notas = require('../../../../controllers/notas');
 var Bitacora = require('../../../../controllers/bitacora');
 var Atencion = require('../../../../controllers/bitacora'); // Atencion controller
 
-router.get('/', function(req, res) {
-  if (req.headers.authorization) {
-    if (Auth.validar(req.headers.authorization)) {
-      var decodificado = Auth.decodificar(req.headers.authorization);
-
-      if(decodificado.rut == req.params.rut) {
-        Asignaturas.mostrar(decodificado, req, res);
-      } else {
-        console.log("No tiene acceso a la información de otra persona");
-      }
-    } else {
-      console.log("Token inválida");
-    }
-  } else {
-    console.log("No introduce token");
-  }
-});
-
 router.get('/:asignaturaId', function(req, res) {
-  if (req.headers.authorization) {
-    if (Auth.validar(req.headers.authorization)) {
-      var decodificado = Auth.decodificar(req.headers.authorization);
-
-      if(decodificado.rut == req.params.rut) {
-        Asignaturas.mostrar(decodificado, req, res);
-      } else {
-        console.log("No tiene acceso a la información de otra persona");
-      }
-    } else {
-      console.log("Token inválida");
-    }
-  } else {
-    console.log("No introduce token");
-  }
+  Auth.desencriptar(req.headers.authorization).then(function(jar) {
+    Asignaturas.mostrar(jar, req, res);
+  });
 });
 
 router.get('/:asignaturaId/notas', function(req, res) {
-  if (req.headers.authorization) {
-    if (Auth.validar(req.headers.authorization)) {
-      var decodificado = Auth.decodificar(req.headers.authorization);
-
-      if(decodificado.rut == req.params.rut) {
-        Notas.mostrar(decodificado, req, res);
-      } else {
-        console.log("No tiene acceso a la información de otra persona");
-      }
-    } else {
-      console.log("Token inválida");
-    }
-  } else {
-    console.log("No introduce token");
-  }
+  Auth.desencriptar(req.headers.authorization).then(function(jar) {
+    Notas.mostrar(jar, req, res);
+  });
 });
 
 router.get('/:asignaturaId/atencion', function(req, res) {
-  if (req.headers.authorization) {
-    if (Auth.validar(req.headers.authorization)) {
-      var decodificado = Auth.decodificar(req.headers.authorization);
-
-      if(decodificado.rut == req.params.rut) {
-        Atencion.mostrar(decodificado, req, res);
-      } else {
-        console.log("No tiene acceso a la información de otra persona");
-      }
-    } else {
-      console.log("Token inválida");
-    }
-  } else {
-    console.log("No introduce token");
-  }
+  Auth.desencriptar(req.headers.authorization).then(function(jar) {
+    Atencion.mostrar(jar, req, res);
+  });
 });
 
 router.get('/:asignaturaId/bitacora', function(req, res) {
-  if (req.headers.authorization) {
-    if (Auth.validar(req.headers.authorization)) {
-      var decodificado = Auth.decodificar(req.headers.authorization);
-
-      if(decodificado.rut == req.params.rut) {
-        Bitacora.mostrar(decodificado, req, res);
-      } else {
-        console.log("No tiene acceso a la información de otra persona");
-      }
-    } else {
-      console.log("Token inválida");
-    }
-  } else {
-    console.log("No introduce token");
-  }
+  Auth.desencriptar(req.headers.authorization).then(function(jar) {
+    Bitacora.mostrar(jar, req, res);
+  });
 });
 
 module.exports = router;

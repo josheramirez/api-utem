@@ -15,6 +15,6 @@ app.use(bodyParser.json());
 
 app.use(morgan('dev'));
 
-app.use('/', require('./routes/index.js'));
+app.use('/', require('./routes/index'));
 
 module.exports = app;

@@ -9,57 +9,21 @@ var Estudiantes = require('../../controllers/estudiantes');
 var Excepcion = require('../../controllers/excepcion');
 
 router.get('/:rut', function(req, res) {
-  if (req.headers.authorization) {
-    if (Auth.validar(req.headers.authorization)) {
-      var decodificado = Auth.decodificar(req.headers.authorization);
-
-      if(decodificado.rut == req.params.rut) {
-        Estudiantes.mostrar(decodificado, req, res);
-      } else {
-        console.log("No tiene acceso a la información de otra persona");
-      }
-    } else {
-      console.log("Token inválida");
-    }
-  } else {
-    console.log("No introduce token");
-  }
+  Auth.desencriptar(req.headers.authorization).then(function(jar) {
+    Estudiantes.mostrar(jar, req, res);
+  });
 });
 
 router.patch('/:rut', function(req, res) {
-  if (req.headers.authorization) {
-    if (Auth.validar(req.headers.authorization)) {
-      var decodificado = Auth.decodificar(req.headers.authorization);
-
-      if(decodificado.rut == req.params.rut) {
-        Estudiantes.cambiarEmail(decodificado, req, res);
-      } else {
-        console.log("No tiene acceso a la información de otra persona");
-      }
-    } else {
-      console.log("Token inválida");
-    }
-  } else {
-    console.log("No introduce token");
-  }
+  Auth.desencriptar(req.headers.authorization).then(function(jar) {
+    Estudiantes.cambiarEmail(jar, req, res);
+  });
 });
 
 router.get('/:rut/excepcion', function(req, res) {
-  if (req.headers.authorization) {
-    if (Auth.validar(req.headers.authorization)) {
-      var decodificado = Auth.decodificar(req.headers.authorization);
-
-      if(decodificado.rut == req.params.rut) {
-        Excepcion.mostrar(decodificado, req, res);
-      } else {
-        console.log("No tiene acceso a la información de otra persona");
-      }
-    } else {
-      console.log("Token inválida");
-    }
-  } else {
-    console.log("No introduce token");
-  }
+  Auth.desencriptar(req.headers.authorization).then(function(jar) {
+    Excepcion.mostrar(jar, req, res);
+  });
 });
 
 router.get('/:rut/horario', function(req, res) {
