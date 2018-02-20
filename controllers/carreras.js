@@ -3,19 +3,16 @@
 var request = require('request');
 var cheerio = require('cheerio');
 
-
-var Logger = require('../middlewares/logger');
-
-exports.mostrar = function(jar, req, res) {
+exports.mostrar = function(sesion, req, res) {
   var urls = [];
 
-  var options = {
+  var opciones = {
     url: 'https://dirdoc.utem.cl/curricular',
     method: 'GET',
-    jar: jar
+    jar: sesion
   };
 
-  request(options, function(error, response, html) {
+  request(opciones, function(error, response, html) {
     var $ = cheerio.load(html);
 
     $('table:nth-of-type(2) tr').slice(1).each(function() {
@@ -37,14 +34,14 @@ exports.mostrar = function(jar, req, res) {
     funcionAsync(urls[i], carreras);
 
     function funcionAsync(url, carreras) {
-      options = {
+      opciones = {
         url: url,
         method: 'GET',
-        jar: jar,
+        jar: sesion,
       };
 
       var carrera;
-      request(options, function(error, response, html) {
+      request(opciones, function(error, response, html) {
         var $ = cheerio.load(html);
 
         var tr = $('table:nth-of-type(2) tr:nth-of-type(2)');
@@ -54,10 +51,10 @@ exports.mostrar = function(jar, req, res) {
           nombre: tr.find('td').eq(0).text().replace(/[0-9]/g, '').trim().toTitleCase(),
           plan: parseInt(tr.find('td').eq(1).text()),
           estado: tr.find('td').eq(2).text().trim().toSentenceCase(),
-          añoIngreso: tr.find('td').eq(3).text().slice(0, 4),
-          semestreIngreso: tr.find('td').eq(3).text().slice(5, 6),
-          añoTermino: tr.find('td').eq(4).text().slice(0, 4) || null,
-          semestreTermino: tr.find('td').eq(4).text().slice(5, 6) || null,
+          añoIngreso: parseInt(tr.find('td').eq(3).text().slice(0, 4)) || null,
+          semestreIngreso: parseInt(tr.find('td').eq(3).text().slice(5, 6)) || null,
+          añoTermino: parseInt(tr.find('td').eq(4).text().slice(0, 4)) || null,
+          semestreTermino: parseInt(tr.find('td').eq(4).text().slice(5, 6)) || null,
           mallaCurricular: "/estudiantes/" + req.params.rut + "/carreras/" + codigo + "/malla"
         }
         carreras.push(carrera);
@@ -73,16 +70,16 @@ exports.mostrar = function(jar, req, res) {
   });
 }
 
-exports.mallaCurricular = function(jar, req, res) {
+exports.mallaCurricular = function(sesion, req, res) {
   var url;
 
-  var options = {
+  var opciones = {
     url: 'https://dirdoc.utem.cl/curricular',
     method: 'GET',
-    jar: jar
+    jar: sesion
   };
 
-  request(options, function(error, response, html) {
+  request(opciones, function(error, response, html) {
     var $ = cheerio.load(html);
 
     $('table:nth-of-type(2) tr').slice(1).each(function() {
@@ -93,13 +90,13 @@ exports.mallaCurricular = function(jar, req, res) {
       }
     });
 
-    options = {
+    opciones = {
       url: url,
       method: 'GET',
-      jar: jar,
+      jar: sesion,
     };
 
-    request(options, function(error, response, html) {
+    request(opciones, function(error, response, html) {
       var $ = cheerio.load(html);
       var asignaturas = [];
       var niveles = [];

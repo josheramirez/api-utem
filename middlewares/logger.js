@@ -23,11 +23,9 @@ exports.dirdoc = function(params) {
         if(mensaje == 'Bienvenido') {
           resolve(opciones.jar);
         } else {
-          // No se inició sesión porque: + mensaje
           reject(Error("No se inició sesión porque: " + mensaje));
         }
       } else {
-        // No cargó la página
         reject(Error("No cargó la pagina"));
       }
     });

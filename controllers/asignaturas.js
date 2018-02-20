@@ -3,9 +3,7 @@
 var request = require('request');
 var cheerio = require('cheerio');
 
-var Logger = require('../middlewares/logger');
-
-exports.mostrar = function(jar, req, res) {
+exports.mostrar = function(sesion, req, res) {
   var semestres = [];
   var urls = ['notas/', 'notas_especial/'];
   var i = 0;
@@ -18,13 +16,13 @@ exports.mostrar = function(jar, req, res) {
     var año, sem;
 
 
-    var options = {
+    var opciones = {
       url: 'https://dirdoc.utem.cl/curricular/' + url,
       method: 'GET',
-      jar: jar
+      jar: sesion
     };
 
-    request(options, function(error, response, html) {
+    request(opciones, function(error, response, html) {
       if (!error && response.statusCode == 200) {
         var $ = cheerio.load(html);
 

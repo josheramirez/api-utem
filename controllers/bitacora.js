@@ -3,17 +3,16 @@
 var request = require('request');
 var cheerio = require('cheerio');
 
-var Logger = require('../middlewares/logger');
 var Fecha = require('../helpers/tiempo')
 
-exports.mostrar = function(jar, req, res) {
-  var options = {
+exports.mostrar = function(sesion, req, res) {
+  var opciones = {
     url: 'https://dirdoc.utem.cl/curricular/notas/' + req.params.asignaturaId,
     method: 'GET',
-    jar: jar
+    jar: sesion
   };
 
-  request(options, function(error, response, html) {
+  request(opciones, function(error, response, html) {
     if (!error && response.statusCode == 200) {
       var $ = cheerio.load(html);
 
@@ -35,10 +34,10 @@ exports.mostrar = function(jar, req, res) {
           var asistencia;
           var registro;
 
-          options = {
+          opciones = {
             url: 'https://dirdoc.utem.cl/alumnos/acta_ajax.php',
             method: 'POST',
-            jar: jar,
+            jar: sesion,
             form: {
               'p1': dia.attribs.value,
               'p2': req.params.asignaturaId,
@@ -46,7 +45,7 @@ exports.mostrar = function(jar, req, res) {
             }
           };
 
-          request(options, function(error, response, html) {
+          request(opciones, function(error, response, html) {
             if (!error && response.statusCode == 200) {
               var $ = cheerio.load(html);
               if ($('body').clone().children().remove().end().text().trim() == 'Usted está presente para este dia.') {

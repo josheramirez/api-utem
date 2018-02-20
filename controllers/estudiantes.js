@@ -3,28 +3,26 @@
 var request = require('request');
 var cheerio = require('cheerio');
 
-var Logger = require('../middlewares/logger');
-
-exports.mostrar = function(jar, req, res) {
+exports.mostrar = function(sesion, req, res) {
   var email;
-  var options = {
+  var opciones = {
     url: 'https://dirdoc.utem.cl/alumnos/datos.php',
-    method: 'get',
-    jar: jar,
+    method: 'GET',
+    jar: sesion,
   };
 
-  request(options, function(error, response, html) {
+  request(opciones, function(error, response, html) {
     var $ = cheerio.load(html);
     email = $('input[name="email"]').val() || null;
   });
 
-  options = {
+  opciones = {
     url: 'https://dirdoc.utem.cl/curricular',
     method: 'GET',
-    jar: jar
+    jar: sesion
   };
 
-  var alumno = request(options, function(error, response, html) {
+  var alumno = request(opciones, function(error, response, html) {
     var $ = cheerio.load(html);
 
     var alumno = {
@@ -38,17 +36,17 @@ exports.mostrar = function(jar, req, res) {
   });
 }
 
-exports.cambiarEmail = function(jar, req, res) {
-  var options = {
+exports.cambiarEmail = function(sesion, req, res) {
+  var opciones = {
     url: 'https://dirdoc.utem.cl/alumnos/datos.php?do=guardar',
     method: 'POST',
-    jar: jar,
+    jar: sesion,
     form: {
       'correo': req.query.email,
     }
   };
 
-  request(options, function(error, response, html) {
+  request(opciones, function(error, response, html) {
     var $ = cheerio.load(html);
     res.status(200).send($('body').text().trim());
   });

@@ -8,20 +8,20 @@ var Auth = require('../../../controllers/autenticacion');
 var Carreras = require('../../../controllers/carreras');
 
 router.get('/', function(req, res) {
-  Auth.desencriptar(req.headers.authorization).then(function(jar) {
-    Carreras.mostrar(jar, req, res);
+  Auth.desencriptar(req).then(function(cookies) {
+    Carreras.mostrar(cookies, req, res);
   });
 });
 
 router.get('/:codigoCarrera', function(req, res) {
-  Auth.desencriptar(req.headers.authorization).then(function(jar) {
-    Carreras.mostrar(jar, req, res);
+  Auth.desencriptar(req).then(function(cookies) {
+    Carreras.mostrar(cookies, req, res);
   });
 });
 
 router.get('/:codigoCarrera/malla', function(req, res) {
-  Auth.desencriptar(req.headers.authorization).then(function(jar) {
-    Carreras.mallaCurricular(jar, req, res);
+  Auth.desencriptar(req).then(function(cookies) {
+    Carreras.mallaCurricular(cookies, req, res);
   });
 });
 

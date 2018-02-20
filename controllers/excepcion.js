@@ -3,18 +3,16 @@
 var request = require('request');
 var cheerio = require('cheerio');
 
-var Logger = require('../middlewares/logger');
-
-exports.mostrar = function(jar, req, res) {
+exports.mostrar = function(sesion, req, res) {
   var matriculas = [];
 
-  var options = {
+  var opciones = {
     url: 'https://dirdoc.utem.cl/alumnos/excepcion.php',
     method: 'GET',
-    jar: jar
+    jar: sesion
   };
 
-  request(options, function(error, response, html) {
+  request(opciones, function(error, response, html) {
     if (!error && response.statusCode == 200) {
       var $ = cheerio.load(html);
 
@@ -25,13 +23,13 @@ exports.mostrar = function(jar, req, res) {
         var estado = $(this).find('td').eq(3).text();
         var asignaturas = [];
 
-        options = {
+        opciones = {
           url: 'https://dirdoc.utem.cl/alumnos/excepcion.php?do=html&p1=' + id,
           method: 'GET',
-          jar: jar
+          jar: sesion
         };
 
-        request(options, function(error, response, html) {
+        request(opciones, function(error, response, html) {
           if (!error && response.statusCode == 200) {
             var $ = cheerio.load(html);
 
