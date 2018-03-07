@@ -81,7 +81,7 @@ exports.mostrar = function(sesion, req, res) {
                 res.status(200).json({
                   clasesRegistradas: i - 1,
                   clasesAsistidas: asistidos,
-                  porcentajeAsistencia: (asistidos / (i - 1)).toFixedNumber2),
+                  porcentajeAsistencia: (asistidos / (i - 1)).toFixedNumber(2),
                   registros: registros
                 });
               }

@@ -167,7 +167,7 @@ exports.mallaCurricular = function(sesion, req, res) {
         asignaturasTotal: total,
         asignaturasAprobadas: aprobadas,
         asignaturasReprobadas: reprobadas,
-        avanceMalla: (aprobadas / total).toFixedNumber2),
+        avanceMalla: (aprobadas / total).toFixedNumber(2),
         asignaturas: niveles
       });
     });
