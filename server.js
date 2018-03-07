@@ -8,5 +8,5 @@ var server = app.listen(port, function() {
 });
 
 app.use(function(req, res) {
-  res.status(404).send({mensaje: 'El directorio' + req.originalUrl + 'no se encuentra o no se puede acceder con el método' + req.method});
+  res.status(404).send({mensaje: 'El directorio ' + req.originalUrl + ' no existe, o no se puede acceder con el método ' + req.method});
 });

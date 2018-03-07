@@ -16,6 +16,8 @@ exports.dirdoc = function(params) {
       }
     }
 
+    console.log(opciones.form);
+
     request(opciones, function(error, response, html) {
       if (!error && response.statusCode == 200) {
         var $ = cheerio.load(html);

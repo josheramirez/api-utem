@@ -9,3 +9,8 @@ String.prototype.toTitleCase = function() {
 String.prototype.toSentenceCase = function() {
   return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
 }
+
+Number.prototype.toFixedNumber = function(x, base){
+  var pow = Math.pow(base || 10, x);
+  return + (Math.round(this*pow) / pow );
+}

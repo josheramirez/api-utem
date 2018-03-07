@@ -3,89 +3,87 @@
 var request = require('request');
 var cheerio = require('cheerio');
 
-exports.mostrar = function(sesion, req, res) {
-  var semestres = [];
+exports.mostrar = async function(sesion, req, res) {
   var urls = ['notas/', 'notas_especial/'];
-  var i = 0;
 
-  funcionAsyncA(urls[i], semestres);
+  var semestres = await Promise.all([procesarSemestre(urls[0]), procesarSemestre(urls[1])]);
 
-  function funcionAsyncA(url, semestres) {
-    var total = 0;
-    var suma = 0;
-    var año, sem;
+  res.status(200).json(semestres);
 
+  var procesarSemestre = (url) => {
+    return new Promise(function(resolve, reject) {
+      var total = 0;
+      var suma = 0;
+      var anio, sem, cant, semN;
 
-    var opciones = {
-      url: 'https://dirdoc.utem.cl/curricular/' + url,
-      method: 'GET',
-      jar: sesion
-    };
+      var opciones = {
+        url: 'https://dirdoc.utem.cl/curricular/' + url,
+        method: 'GET',
+        jar: sesion
+      };
 
-    request(opciones, function(error, response, html) {
-      if (!error && response.statusCode == 200) {
-        var $ = cheerio.load(html);
+      request(opciones, async function(error, response, html) {
+        if (!error && response.statusCode == 200) {
+          var $ = cheerio.load(html);
+          var asignaturas, total;
 
-        var j = 0;
-        var trs = $('table:nth-of-type(2) tr').slice(1);
-
-        año = parseInt($('h3').text().match(/[0-9]+/g));
-        sem = $('h3').text().search('Primer') != -1 ? 1 : 2;
-
-        var asignaturas = [];
-
-        funcionAsyncB(trs[j], asignaturas, semestres);
-
-        function funcionAsyncB(tr, asignaturas, semestres) {
-          var id = parseInt($(tr).find('td').eq(-1).find('a').attr('href').replace('/curricular/notas/', ''));
-
-          var asignatura = {
-            id: id,
-            codigo: $(tr).find('td').eq(0).text(),
-            nombre: $(tr).find('td').eq(1).text().toTitleCase(),
-            profesor: $(tr).find('td').eq(2).text().toTitleCase(),
-            seccion: parseInt($(tr).find('td').eq(3).text()),
-            estado: $(tr).find('td').eq(4).text().toTitleCase() || null,
-            notaFinal: parseFloat($(tr).find('td').eq(5).text().replace(',', '.')),
-            notas: '/estudiantes/' + req.params.rut + '/carreras/' + req.params.codigoCarrera + '/asignaturas/' + id + '/notas',
-            bitacora: '/estudiantes/' + req.params.rut + '/carreras/' + req.params.codigoCarrera + '/asignaturas/' + id + '/bitacora',
-            atencionProfesor: '/estudiantes/' + req.params.rut + '/carreras/' + req.params.codigoCarrera + '/asignaturas/' + id + '/atencion'
-          }
-
-          if (req.params.asignaturaId == id) {
-            res.status(200).json(asignatura);
+          if ($('p').text() == 'No registras inscripción académica para este semestre') {
+            asignaturas = null;
+            total = 0;
           } else {
-            suma += asignatura.notaFinal;
-
-            asignaturas.push(asignatura);
-
-            j++;
-
-            if (j < trs.length) {
-              funcionAsyncB(trs[j], asignaturas, semestres);
-            } else {
-              var semestre = {
-                semestre: sem,
-                año: año,
-                promedio: (suma / j).toFixed(1),
-                totalAsignaturas: j,
-                asignaturas: asignaturas
+            var asignaturas = [];
+            $('table:nth-of-type(2) tr').slice(1).map(function() {
+              var id = parseInt($(this).find('td').eq(-1).find('a').attr('href').replace('/curricular/notas/', ''));
+              if (!req.params.id || (req.params.id && req.params.id == id)) {
+                var asignatura = {
+                  id: id,
+                  codigo: $(this).find('td').eq(0).text(),
+                  nombre: $(this).find('td').eq(1).text().toTitleCase(),
+                  profesor: $(this).find('td').eq(2).text().toTitleCase(),
+                  seccion: parseInt($(this).find('td').eq(3).text()),
+                  estado: $(this).find('td').eq(4).text().toTitleCase() || null,
+                  notaFinal: parseFloat($(this).find('td').eq(5).text().replace(',', '.')).toFixedNumber(1) || null,
+                  notas: req.originalUrl + id + '/notas',
+                  bitacora: req.originalUrl + id + '/bitacora',
+                  atencionProfesor: req.originalUrl + id + '/atencion'
+                }
+                if (asignatura.notaFinal) {
+                  suma += asignatura.notaFinal;
+                  cant++;
+                }
+                asignaturas.push(asignatura);
               }
 
-              semestres.push(semestre);
-            }
+            });
+            total = $('table:nth-of-type(2) tr').slice(1).length;
           }
+
+          if ($('h3').text().search('Primer') != -1) {
+            sem = 'Primero';
+            semN = 1;
+          } else if ($('h3').text().search('Segundo') != -1) {
+            sem = 'Segundo';
+            semN = 2;
+          } else if ($('h3').text().search('Verano') != -1) {
+            sem = 'Verano';
+            semN = null;
+          }
+
+          var semestre = {
+            anio: parseInt($('h3').text().match(/[0-9]+/g)),
+            semestre: sem,
+            semestreNumero: semN,
+            promedio: total != 0 ? (suma / cant).toFixedNumber(1) : null,
+            totalAsignaturas: total,
+            asignaturas: asignaturas
+          }
+
+          resolve(semestre);
+
+        } else {
+          reject('El documento no se cargó correctamente');
         }
-
-        i++;
-
-        if (i < urls.length) {
-          funcionAsyncA(urls[i], semestres);
-        } else if (!req.params.asignaturaId) {
-          res.status(200).json(semestres);
-        }
-      }
-
+      });
     });
   }
 }

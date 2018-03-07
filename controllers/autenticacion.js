@@ -4,9 +4,14 @@ var request = require('request');
 var cheerio = require('cheerio');
 var jose = require('jose-simple');
 var { JWK } = require('node-jose');
-var keygen = require('generate-rsa-keypair')
+var keygen = require('generate-rsa-keypair');
 
-var Logger = require('../middlewares/logger')
+var Logger = require('../middlewares/logger');
+
+var llave = keygen();
+
+var llavePublica = llave.public // process.env.PUBLIC_KEY;
+var llavePrivada = llave.private; // process.env.PRIVATE_KEY
 
 var d = new Date();
 
@@ -21,7 +26,7 @@ exports.generar = function(req, res) {
 
     var pemAJwk = pem => JWK.asKey(pem, 'pem');
 
-    Promise.all([pemAJwk(process.env.PUBLIC_KEY), pemAJwk(process.env.PRIVATE_KEY)]).then(function(llaves) {
+    Promise.all([pemAJwk(llavePublica), pemAJwk(llavePrivada)]).then(function(llaves) {
       var { encrypt, decrypt } = jose(llaves[1], llaves[0]);
       encrypt(credenciales).then((token) => {
         res.status(200).send({
@@ -49,7 +54,7 @@ exports.desencriptar = function(req) {
         token = req.query.token
       }
 
-      Promise.all([pemAJwk(process.env.PUBLIC_KEY), pemAJwk(process.env.PRIVATE_KEY)]).then(function(llaves) {
+      Promise.all([pemAJwk(llavePublica), pemAJwk(llavePrivada)]).then(function(llaves) {
         var { encrypt, decrypt } = jose(llaves[1], llaves[0]);
         decrypt(token).then((desencriptado) => {
           if(desencriptado.exp < d.getTime()) {

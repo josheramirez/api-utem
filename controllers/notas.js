@@ -54,7 +54,7 @@ exports.mostrar = function(sesion, req, res) {
             var nota = {
               tipo: tipo,
               ponderacion: parseInt(ponderacion) / 100,
-              valor: valor
+              valor: parseFloat(valor).toFixedNumber(1)
             }
             notas.push(nota);
           }
@@ -62,10 +62,10 @@ exports.mostrar = function(sesion, req, res) {
 
       });
       res.status(200).json({
-        presentacion: presentacion,
+        presentacion: parseFloat(presentacion).toFixedNumber(1),
         rindeExamen: presentacion < 4 && presentacion >= 3,
-        examen: examen,
-        final: final,
+        examen: parseFloat(examen).toFixedNumber(1),
+        final: parseFloat(final).toFixedNumber(1),
         aprobado: presentacion >= 4 || final >= 4,
         notas: notas
       });

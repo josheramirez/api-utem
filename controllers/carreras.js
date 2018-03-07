@@ -3,7 +3,7 @@
 var request = require('request');
 var cheerio = require('cheerio');
 
-exports.mostrar = function(sesion, req, res) {
+exports.mostrar = async function(sesion, req, res) {
   var urls = [];
 
   var opciones = {
@@ -28,43 +28,41 @@ exports.mostrar = function(sesion, req, res) {
       }
     });
 
-    var carreras = [];
-    var i = 0;
+    var promesas = urls.map(procesarCarrera);
 
-    funcionAsync(urls[i], carreras);
+    var carreras = Promise.all(promesas);
 
-    function funcionAsync(url, carreras) {
+    carreras.then(datos => {
+      res.status(200).json(datos);
+    })
+
+    function procesarCarrera(url) {
       opciones = {
         url: url,
         method: 'GET',
         jar: sesion,
-      };
+      }
+      return new Promise(function(resolve, reject) {
+        var carrera;
 
-      var carrera;
-      request(opciones, function(error, response, html) {
-        var $ = cheerio.load(html);
+        request(opciones, function(error, response, html) {
+          var $ = cheerio.load(html);
 
-        var tr = $('table:nth-of-type(2) tr:nth-of-type(2)');
-        var codigo = parseInt(tr.find('td').eq(0).text());
-        carrera = {
-          codigo: codigo,
-          nombre: tr.find('td').eq(0).text().replace(/[0-9]/g, '').trim().toTitleCase(),
-          plan: parseInt(tr.find('td').eq(1).text()),
-          estado: tr.find('td').eq(2).text().trim().toSentenceCase(),
-          añoIngreso: parseInt(tr.find('td').eq(3).text().slice(0, 4)) || null,
-          semestreIngreso: parseInt(tr.find('td').eq(3).text().slice(5, 6)) || null,
-          añoTermino: parseInt(tr.find('td').eq(4).text().slice(0, 4)) || null,
-          semestreTermino: parseInt(tr.find('td').eq(4).text().slice(5, 6)) || null,
-          mallaCurricular: "/estudiantes/" + req.params.rut + "/carreras/" + codigo + "/malla"
-        }
-        carreras.push(carrera);
-        i++;
-
-        if (i < urls.length) {
-          funcionAsync(urls[i], carreras);
-        } else {
-          res.status(200).json(carreras);
-        }
+          var tr = $('table:nth-of-type(2) tr:nth-of-type(2)');
+          var codigo = parseInt(tr.find('td').eq(0).text());
+          carrera = {
+            codigo: codigo,
+            nombre: tr.find('td').eq(0).text().replace(/[0-9]/g, '').trim().toTitleCase(),
+            plan: parseInt(tr.find('td').eq(1).text()),
+            estado: tr.find('td').eq(2).text().trim().toSentenceCase(),
+            añoIngreso: parseInt(tr.find('td').eq(3).text().slice(0, 4)) || null,
+            semestreIngreso: parseInt(tr.find('td').eq(3).text().slice(5, 6)) || null,
+            añoTermino: parseInt(tr.find('td').eq(4).text().slice(0, 4)) || null,
+            semestreTermino: parseInt(tr.find('td').eq(4).text().slice(5, 6)) || null,
+            mallaCurricular: req.originalUrl + '/' + codigo + '/malla'
+          }
+          resolve(carrera);
+        });
       });
     }
   });
@@ -169,7 +167,7 @@ exports.mallaCurricular = function(sesion, req, res) {
         asignaturasTotal: total,
         asignaturasAprobadas: aprobadas,
         asignaturasReprobadas: reprobadas,
-        avanceMalla: (aprobadas / total).toFixed(2),
+        avanceMalla: (aprobadas / total).toFixedNumber2),
         asignaturas: niveles
       });
     });
