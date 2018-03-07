@@ -18,9 +18,9 @@ var d = new Date();
 exports.generar = function(req, res) {
   Logger.dirdoc(req.query).then(function(jar) {
     var credenciales = {
-      tipo: req.query.tipo,
-      rut: req.query.rut,
-      pass: req.query.pass,
+      tipo: req.body.tipo,
+      rut: req.body.rut,
+      pass: req.body.pass,
       exp: d.getTime() + 1000 * 60 * 60,
     };
 
