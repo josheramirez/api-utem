@@ -1,6 +1,6 @@
 'use strict';
 
-//require('./helpers/string');
+require('./helpers/string');
 
 var express = require('express');
 var mongoose = require('mongoose');
