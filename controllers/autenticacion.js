@@ -16,7 +16,7 @@ var llavePrivada = llave.private; // process.env.PRIVATE_KEY
 var d = new Date();
 
 exports.generar = function(req, res) {
-  Logger.dirdoc(req.query).then(function(jar) {
+  Logger.dirdoc(req.body).then(function(jar) {
     var credenciales = {
       tipo: req.body.tipo,
       rut: req.body.rut,
