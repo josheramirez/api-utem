@@ -10,7 +10,7 @@ exports.mostrar = async function(sesion, req, res) {
 
   res.status(200).json(semestres);
 
-  var procesarSemestre = (url) => {
+  function procesarSemestre(url) {
     return new Promise(function(resolve, reject) {
       var total = 0;
       var suma = 0;

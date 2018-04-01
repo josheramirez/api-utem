@@ -4,11 +4,11 @@ var express = require('express');
 
 var router = express.Router({mergeParams: true});
 
-var Auth = require('../../../../controllers/autenticacion');
-var Asignaturas = require('../../../../controllers/asignaturas');
-var Notas = require('../../../../controllers/notas');
-var Bitacora = require('../../../../controllers/bitacora');
-var Atencion = require('../../../../controllers/bitacora'); // Atencion controller
+var Auth = require('../../../controllers/autenticacion');
+var Asignaturas = require('../../../controllers/asignaturas');
+var Notas = require('../../../controllers/notas');
+var Bitacora = require('../../../controllers/bitacora');
+var Atencion = require('../../../controllers/bitacora'); // Atencion controller
 
 router.get('/', function(req, res) {
   Auth.desencriptar(req).then(function(cookies) {

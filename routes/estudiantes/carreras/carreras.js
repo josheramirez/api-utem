@@ -25,6 +25,6 @@ router.get('/:codigoCarrera/malla', function(req, res) {
   });
 });
 
-router.use('/:codigoCarrera/asignaturas', require('./asignaturas/asignaturas'));
+
 
 module.exports = router;

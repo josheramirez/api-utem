@@ -1,11 +1,11 @@
 {
-  "name": "api-dirdoc-utem",
+  "name": "api-utem",
   "version": "0.1.0",
-  "description": "API de DIRDOC de la Universidad Tecnológica Metropolitana de Chile",
+  "description": "API de la Universidad Tecnológica Metropolitana de Chile",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no hay archivo de prueba configurado\" && exit 1",
-    "start": "node app.js"
+    "start": "nodemon app.js"
   },
   "author": "Jorge Verdugo Chacón",
   "license": "MPL 2.0",
@@ -13,14 +13,21 @@
     "body-parser": "1.18.2",
     "cheerio": "1.0.0-rc.2",
     "express": "4.15.2",
+    "form-data": "2.3.2",
     "generate-rsa-keypair": "^0.1.1",
     "jose-simple": "1.0.0",
     "mongoose": "5.0.0-rc0",
     "morgan": "1.9.0",
     "node-jose": "0.11.0",
-    "request": "2.81.0"
+    "pdf2json": "^1.1.7",
+    "request": "2.81.0",
+    "request-promise": "4.2.2",
+    "throw.js": "3.0.1"
   },
   "engines": {
     "node": "8.9.4"
+  },
+  "devDependencies": {
+    "nodemon": "^1.17.2"
   }
 }

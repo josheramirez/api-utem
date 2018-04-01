@@ -5,8 +5,9 @@ var cheerio = require('cheerio');
 var jose = require('jose-simple');
 var { JWK } = require('node-jose');
 var keygen = require('generate-rsa-keypair');
-
-var Logger = require('../middlewares/logger');
+var errors = require('../middlewares/errors');
+var logger = require('../middlewares/logger');
+var rut = require('../helpers/rut');
 
 var llave = keygen();
 
@@ -15,27 +16,34 @@ var llavePrivada = llave.private; // process.env.PRIVATE_KEY
 
 var d = new Date();
 
-exports.generar = function(req, res) {
-  Logger.dirdoc(req.body).then(function(jar) {
-    var credenciales = {
-      tipo: req.body.tipo,
-      rut: req.body.rut,
-      pass: req.body.pass,
-      exp: d.getTime() + 1000 * 60 * 60,
-    };
+exports.generar = async function(req, res, next) {
+  try {
+    var rutObtenido = await logger.validarDatos(req.body);
+    if (true) {
+      var credenciales = {
+        correo: req.body.correo,
+        rut: rutObtenido,
+        contraseniaPasaporte: req.body.contrasenia_pasaporte,
+        contraseniaDirdoc: req.body.contrasenia_dirdoc,
+        exp: d.getTime() + 1000 * 60 * 60
+      };
 
-    var pemAJwk = pem => JWK.asKey(pem, 'pem');
+      var pemAJwk = pem => JWK.asKey(pem, 'pem');
 
-    Promise.all([pemAJwk(llavePublica), pemAJwk(llavePrivada)]).then(function(llaves) {
-      var { encrypt, decrypt } = jose(llaves[1], llaves[0]);
-      encrypt(credenciales).then((token) => {
-        res.status(200).send({
-          mensaje: "El token se generó correctamente",
-          token: token
+      Promise.all([pemAJwk(llavePublica), pemAJwk(llavePrivada)]).then(function(llaves) {
+        var { encrypt, decrypt } = jose(llaves[1], llaves[0]);
+        encrypt(credenciales).then((token) => {
+          res.status(200).send({
+            token: token
+          })
         });
       });
-    });
-  });
+    } else {
+      next(new errors(400, 'Ocurrió un error inesperado al iniciar sesión'));
+    }
+  } catch (e) {
+    next(e);
+  }
 }
 
 exports.desencriptar = function(req) {
@@ -48,7 +56,7 @@ exports.desencriptar = function(req) {
         if(req.headers.authorization.search('Bearer ') == 0) {
           token = req.headers.authorization.replace('Bearer ', '');
         } else {
-          reject('El token tiene un formato incorrecto')
+          reject(new errors(400, 'El token tiene un formato incorrecto'));
         }
       } else if (req.query.token) {
         token = req.query.token
@@ -58,20 +66,18 @@ exports.desencriptar = function(req) {
         var { encrypt, decrypt } = jose(llaves[1], llaves[0]);
         decrypt(token).then((desencriptado) => {
           if(desencriptado.exp < d.getTime()) {
-            reject('El token expiró');
-          } else if (!req.params.rut) {
-            reject('No se necesita acceder a los datos del usuario');
-          } else if (req.params.rut != desencriptado.rut) {
-            reject('No es posible obtener los datos de otro usuario con estas credenciales')
+            reject(new errors(401, 'El token expiró'));
+          } else if (req.params.rut != rut.limpiar(desencriptado.rut).slice(0, -1)) {
+            reject(new errors(401, 'No puede ingresar a los datos de este estudiante con las credenciales introducidas'))
           } else {
-            Logger.dirdoc(desencriptado).then(function(cookies) {
-              resolve(cookies);
-            });
+            resolve(desencriptado);
           }
         });
+      }).catch(function(e) {
+        reject(new errors(500, e));
       });
     } else {
-      reject('No se ingresó ninguna token')
+      reject(new errors(400, 'No se ingresó ninguna token'));
     }
   });
 }
